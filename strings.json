@@ -1,0 +1,7 @@
+{
+  "responseMessages": {
+    "invalidParameters": "Invalid parameters",
+    "alreadyExists": "Already exists",
+    "createdSuccessfully": "Created successfully"
+  }
+}
