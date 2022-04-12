@@ -1,4 +1,5 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const { responseMessages } = require('../strings.json');
 
@@ -27,10 +28,12 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ message: responseMessages.alreadyExists });
   }
 
+  const hashedPassword = await bcrypt.hash(password, 10);
+
   const user = new User({
     name,
     email,
-    password,
+    password: hashedPassword,
   });
 
   await user.save();
@@ -51,7 +54,7 @@ router.post('/login', async (req, res) => {
     return res.status(400).json({ message: responseMessages.invalidCredentials });
   }
 
-  if (password !== user.password) {
+  if (!(await bcrypt.compare(password, user.password))) {
     return res.status(400).json({ message: responseMessages.invalidCredentials });
   }
 
