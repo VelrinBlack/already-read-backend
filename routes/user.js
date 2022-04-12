@@ -38,4 +38,24 @@ router.post('/register', async (req, res) => {
   return res.status(201).json({ message: responseMessages.createdSuccessfully });
 });
 
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: responseMessages.invalidParameters });
+  }
+
+  const user = await User.findOne({ email }).exec();
+
+  if (!user) {
+    return res.status(400).json({ message: responseMessages.invalidCredentials });
+  }
+
+  if (password !== user.password) {
+    return res.status(400).json({ message: responseMessages.invalidCredentials });
+  }
+
+  return res.status(200).json({ message: responseMessages.authenticatedSuccessfully });
+});
+
 module.exports = router;

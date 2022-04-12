@@ -2,6 +2,8 @@
   "responseMessages": {
     "invalidParameters": "Invalid parameters",
     "alreadyExists": "Already exists",
-    "createdSuccessfully": "Created successfully"
+    "createdSuccessfully": "Created successfully",
+    "invalidCredentials": "Invalid credentials",
+    "authenticatedSuccessfully": "Authenticated successfully"
   }
 }
