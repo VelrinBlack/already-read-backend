@@ -38,7 +38,12 @@ router.post('/register', async (req, res) => {
 
   await user.save();
 
-  return res.status(201).json({ message: responseMessages.createdSuccessfully });
+  return res.status(201).json({
+    message: responseMessages.createdSuccessfully,
+    name,
+    email,
+    password,
+  });
 });
 
 router.post('/login', async (req, res) => {
@@ -58,7 +63,12 @@ router.post('/login', async (req, res) => {
     return res.status(400).json({ message: responseMessages.invalidCredentials });
   }
 
-  return res.status(200).json({ message: responseMessages.authenticatedSuccessfully });
+  return res.status(200).json({
+    message: responseMessages.authenticatedSuccessfully,
+    name: user.name,
+    email,
+    password,
+  });
 });
 
 module.exports = router;
