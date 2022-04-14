@@ -4,6 +4,7 @@
     "alreadyExists": "Already exists",
     "createdSuccessfully": "Created successfully",
     "invalidCredentials": "Invalid credentials",
-    "authenticatedSuccessfully": "Authenticated successfully"
+    "authenticatedSuccessfully": "Authenticated successfully",
+    "internalServerError": "internalServerError"
   }
 }

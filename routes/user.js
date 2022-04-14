@@ -2,6 +2,8 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const { responseMessages } = require('../strings.json');
+const randomstring = require('randomstring');
+const nodemailer = require('nodemailer');
 
 const router = express.Router();
 
@@ -34,9 +36,39 @@ router.post('/register', async (req, res) => {
     name,
     email,
     password: hashedPassword,
+    activationCode: randomstring.generate(6),
   });
 
   await user.save();
+
+  let transport = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.EMAIL_ADDRESS,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+
+  const mailOptions = {
+    from: `Already Read <${process.env.EMAIL_ADDRESS}>`,
+    to: email,
+    subject: "Here's your AlreadyRead account activation code!",
+    text: `Welcome to AlreadyRead!\nHere's your activation code: ${user.activationCode}`,
+  };
+
+  let emailSendingError = false;
+
+  transport.sendMail(mailOptions, (err) => {
+    if (err) {
+      emailSendingError = true;
+    }
+  });
+
+  if (emailSendingError) {
+    return res.status(500).json({ message: responseMessages.internalServerError });
+  }
 
   return res.status(201).json({
     message: responseMessages.createdSuccessfully,
