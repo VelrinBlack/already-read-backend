@@ -16,6 +16,24 @@ const isEmail = (str) => {
     );
 };
 
+const authorizate = (req, res, next) => {
+  const token = req.headers['authorization'];
+
+  if (!token) {
+    return res.status(400).json({ message: responseMessages.invalidParameters });
+  }
+
+  jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: responseMessages.invalidAuthorizationToken });
+    }
+
+    req.user = user;
+
+    next();
+  });
+};
+
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
 
