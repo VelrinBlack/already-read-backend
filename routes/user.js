@@ -89,7 +89,7 @@ router.post('/register', async (req, res) => {
     return res.status(500).json({ message: responseMessages.internalServerError });
   }
 
-  const token = jwt.sign({ name, email, password }, process.env.TOKEN_SECRET);
+  const token = jwt.sign({ name, email }, process.env.TOKEN_SECRET);
 
   return res.status(201).json({
     message: responseMessages.createdSuccessfully,
@@ -116,7 +116,7 @@ router.post('/login', async (req, res) => {
     return res.status(400).json({ message: responseMessages.invalidCredentials });
   }
 
-  const token = jwt.sign({ name: user.name, email, password }, process.env.TOKEN_SECRET);
+  const token = jwt.sign({ name: user.name, email }, process.env.TOKEN_SECRET);
 
   return res.status(200).json({
     message: responseMessages.authenticatedSuccessfully,
