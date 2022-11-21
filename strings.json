@@ -6,6 +6,7 @@
     "invalidCredentials": "Invalid credentials",
     "authenticatedSuccessfully": "Authenticated successfully",
     "internalServerError": "Internal server error",
-    "invalidAuthorizationToken": "Invalid authorization token"
+    "invalidAuthorizationToken": "Invalid authorization token",
+    "notFound": "Not Found"
   }
 }
