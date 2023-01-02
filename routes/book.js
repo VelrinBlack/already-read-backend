@@ -19,4 +19,12 @@ router.get('/getFiltered', async (req, res) => {
   }
 });
 
+router.get('/image/:name', (req, res) => {
+  if (!req.params.name) {
+    return res.status(400).json({ message: responseMessages.invalidParameters });
+  }
+
+  return res.download(`images/${req.params.name}`);
+});
+
 module.exports = router;
