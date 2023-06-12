@@ -7,6 +7,7 @@
     "authenticatedSuccessfully": "Authenticated successfully",
     "internalServerError": "Internal server error",
     "invalidAuthorizationToken": "Invalid authorization token",
-    "notFound": "Not Found"
+    "notFound": "Not Found",
+    "updatedSuccessfully": "Updated successfully"
   }
 }

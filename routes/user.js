@@ -126,4 +126,32 @@ router.post('/login', async (req, res) => {
   });
 });
 
+router.patch('/update', authorizate, async (req, res) => {
+  const { newName, newEmail, newPassword } = req.body;
+
+  if (!newName || !newEmail || !newPassword) {
+    return res.status(400).json({ message: responseMessages.invalidParameters });
+  }
+
+  const user = await User.findOne({ email: req.user.email }).exec();
+
+  if (!user) {
+    return res.status(400).json({ message: responseMessages.invalidCredentials });
+  }
+
+  if (newName != user.name) user.name = newName;
+  if (newEmail != user.email) user.email = newEmail;
+  if (!(await bcrypt.compare(newPassword, user.password)))
+    user.password = await bcrypt.hash(newPassword, 10);
+
+  await user.save();
+
+  const token = jwt.sign({ name: user.name, email: user.email }, process.env.TOKEN_SECRET);
+
+  return res.status(200).json({
+    message: responseMessages.updatedSuccessfully,
+    token,
+  });
+});
+
 module.exports = router;
