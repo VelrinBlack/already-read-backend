@@ -127,16 +127,20 @@ router.post('/login', async (req, res) => {
 });
 
 router.patch('/update', authorizate, async (req, res) => {
-  const { newName, newEmail, newPassword } = req.body;
+  const { newName, newEmail, oldPassword, newPassword } = req.body;
 
-  if (!newName || !newEmail || !newPassword) {
+  if (!newName || !newEmail || !oldPassword || !newPassword) {
     return res.status(400).json({ message: responseMessages.invalidParameters });
   }
 
   const user = await User.findOne({ email: req.user.email }).exec();
 
-  if (!user) {
+  if (!user || !(await bcrypt.compare(oldPassword, user?.password))) {
     return res.status(400).json({ message: responseMessages.invalidCredentials });
+  }
+
+  if ((await User.findOne({ email: newEmail }).exec()) && req.user.email != newEmail) {
+    return res.status(400).json({ message: responseMessages.alreadyExists });
   }
 
   if (newName != user.name) user.name = newName;
@@ -151,6 +155,8 @@ router.patch('/update', authorizate, async (req, res) => {
   return res.status(200).json({
     message: responseMessages.updatedSuccessfully,
     token,
+    newName,
+    newEmail,
   });
 });
 
