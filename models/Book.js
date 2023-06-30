@@ -9,19 +9,11 @@ const bookSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  author: {
-    type: String,
-    required: true,
-  },
   price: {
     type: Number,
     required: true,
   },
-  yearPublished: {
-    type: String,
-    required: true,
-  },
-  state: {
+  condition: {
     type: String,
     required: true,
   },
