@@ -40,6 +40,40 @@ router.get('/getFiltered', async (req, res) => {
   }
 });
 
+router.get('/getOne', async (req, res) => {
+  const { id } = req.query;
+
+  if (id) {
+    let error = false;
+
+    const book = await Book.findOne({ _id: id })
+      .populate('seller', 'name email')
+      .catch(() => {
+        error = true;
+      });
+
+    if (error) {
+      return res.status(404).json({ message: responseMessages.notFound });
+    }
+
+    if (book) {
+      return res.status(200).json({
+        book: {
+          title: book.title,
+          price: book.price,
+          condition: book.condition,
+          imageName: book.imageName,
+          seller: book.seller,
+        },
+      });
+    } else {
+      return res.status(404).json({ message: responseMessages.notFound });
+    }
+  } else {
+    return res.status(400).json({ message: responseMessages.invalidParameters });
+  }
+});
+
 router.get('/image/:name', (req, res) => {
   if (!req.params.name) {
     return res.status(400).json({ message: responseMessages.invalidParameters });
