@@ -22,6 +22,12 @@ const userSchema = new mongoose.Schema({
     length: 6,
     required: true,
   },
+  favourites: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Book',
+    },
+  ],
 });
 
 const User = mongoose.model('User', userSchema);

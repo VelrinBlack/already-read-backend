@@ -5,6 +5,7 @@ const { responseMessages } = require('../strings.json');
 const randomstring = require('randomstring');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
+const { default: mongoose } = require('mongoose');
 
 const router = express.Router();
 
@@ -157,6 +158,31 @@ router.patch('/update', authorizate, async (req, res) => {
     token,
     newName,
     newEmail,
+  });
+});
+
+router.post('/addFavourite', authorizate, async (req, res) => {
+  const { bookID } = req.body;
+
+  if (!bookID || bookID.length != 24) {
+    return res.status(400).json({ message: responseMessages.invalidParameters });
+  }
+
+  const user = await User.findOne({ email: req.user.email }).exec();
+
+  if (!user) {
+    return res.status(400).json({ message: responseMessages.invalidCredentials });
+  }
+
+  if (user.favourites.find((id) => id == bookID)) {
+    return res.status(400).json({ message: responseMessages.alreadyExists });
+  }
+
+  user.favourites.push(mongoose.Types.ObjectId(bookID));
+  user.save();
+
+  return res.status(200).json({
+    message: responseMessages.createdSuccessfully,
   });
 });
 
