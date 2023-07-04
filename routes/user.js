@@ -186,4 +186,29 @@ router.post('/addFavourite', authorizate, async (req, res) => {
   });
 });
 
+router.delete('/removeFavourite', authorizate, async (req, res) => {
+  const { bookID } = req.body;
+
+  if (!bookID || bookID.length != 24) {
+    return res.status(400).json({ message: responseMessages.invalidParameters });
+  }
+
+  const user = await User.findOne({ email: req.user.email }).exec();
+
+  if (!user) {
+    return res.status(400).json({ message: responseMessages.invalidCredentials });
+  }
+
+  if (!user.favourites.find((id) => id == bookID)) {
+    return res.status(400).json({ message: responseMessages.invalidParameters });
+  }
+
+  user.favourites = user.favourites.filter((favourite) => favourite.toString() !== bookID);
+  user.save();
+
+  return res.status(200).json({
+    message: responseMessages.removedSuccessfully,
+  });
+});
+
 module.exports = router;

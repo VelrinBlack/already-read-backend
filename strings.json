@@ -8,6 +8,7 @@
     "internalServerError": "Internal server error",
     "invalidAuthorizationToken": "Invalid authorization token",
     "notFound": "Not Found",
-    "updatedSuccessfully": "Updated successfully"
+    "updatedSuccessfully": "Updated successfully",
+    "removedSuccessfully": "Removed successfully"
   }
 }
