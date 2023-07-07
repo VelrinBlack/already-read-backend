@@ -186,8 +186,8 @@ router.post('/addFavourite', authorizate, async (req, res) => {
   });
 });
 
-router.delete('/removeFavourite', authorizate, async (req, res) => {
-  const { bookID } = req.body;
+router.delete('/removeFavourite/:bookID', authorizate, async (req, res) => {
+  const { bookID } = req.params;
 
   if (!bookID || bookID.length != 24) {
     return res.status(400).json({ message: responseMessages.invalidParameters });
