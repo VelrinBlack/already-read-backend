@@ -9,6 +9,8 @@
     "invalidAuthorizationToken": "Invalid authorization token",
     "notFound": "Not Found",
     "updatedSuccessfully": "Updated successfully",
-    "removedSuccessfully": "Removed successfully"
+    "removedSuccessfully": "Removed successfully",
+    "bookIsFavourite": "Book is favourite",
+    "bookIsNotFavourite": "Book is not favourite"
   }
 }
