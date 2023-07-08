@@ -161,6 +161,18 @@ router.patch('/update', authorizate, async (req, res) => {
   });
 });
 
+router.get('/allFavourites', authorizate, async (req, res) => {
+  const user = await User.findOne({ email: req.user.email }).exec();
+
+  if (!user) {
+    return res.status(400).json({ message: responseMessages.invalidCredentials });
+  }
+
+  await user.populate('favourites', '_id title ISBN price imageName condition');
+
+  return res.status(200).json({ favourites: user.favourites });
+});
+
 router.post('/addFavourite', authorizate, async (req, res) => {
   const { bookID } = req.body;
 
