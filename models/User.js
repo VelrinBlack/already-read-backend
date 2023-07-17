@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema({
       ref: 'Book',
     },
   ],
+  profileImageName: String,
 });
 
 const User = mongoose.model('User', userSchema);

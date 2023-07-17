@@ -6,7 +6,10 @@ const randomstring = require('randomstring');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 const { default: mongoose } = require('mongoose');
+const multer = require('multer');
+const fs = require('fs');
 
+const upload = multer({ dest: 'images/' });
 const router = express.Router();
 
 const isEmail = (str) => {
@@ -127,7 +130,26 @@ router.post('/login', async (req, res) => {
   });
 });
 
-router.patch('/update', authorizate, async (req, res) => {
+router.patch('/update', authorizate, upload.single('profileImage'), async (req, res) => {
+  if (req.file) {
+    fs.rename(req.file.path, `${req.file.path}.png`, (err) => {
+      if (err) {
+        fs.unlinkSync(`images/${req.file.path}`);
+        return res.status(500).json({ message: responseMessages.internalServerError });
+      }
+    });
+
+    if (
+      req.file.mimetype != 'image/png' &&
+      req.file.mimetype != 'image/jpg' &&
+      req.file.mimetype != 'image/jpeg' &&
+      req.file.mimetype != 'image/webp'
+    ) {
+      fs.unlinkSync(`images/${req.file.path}`);
+      return res.status(400).json({ message: responseMessages.unsupportedFileType });
+    }
+  }
+
   const { newName, newEmail, oldPassword, newPassword } = req.body;
 
   if (!newName || !newEmail || !oldPassword || !newPassword) {
@@ -144,6 +166,13 @@ router.patch('/update', authorizate, async (req, res) => {
     return res.status(400).json({ message: responseMessages.alreadyExists });
   }
 
+  if (req.file) {
+    if (user.profileImageName) {
+      fs.unlinkSync(`images/${user.profileImageName}`);
+    }
+
+    user.profileImageName = `${req.file.filename}.png`;
+  }
   if (newName != user.name) user.name = newName;
   if (newEmail != user.email) user.email = newEmail;
   if (!(await bcrypt.compare(newPassword, user.password)))
