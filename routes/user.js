@@ -272,4 +272,18 @@ router.get('/checkIfFavourite', authorizate, async (req, res) => {
   }
 });
 
+router.get('/profileImage', authorizate, async (req, res) => {
+  const user = await User.findOne({ email: req.user.email }).exec();
+
+  if (!user) {
+    return res.status(400).json({ message: responseMessages.invalidCredentials });
+  }
+
+  if (user.profileImageName) {
+    return res.download(`images/${user.profileImageName}`);
+  } else {
+    return res.status(404).json({ message: responseMessages.notFound });
+  }
+});
+
 module.exports = router;
