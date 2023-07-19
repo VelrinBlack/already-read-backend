@@ -272,8 +272,14 @@ router.get('/checkIfFavourite', authorizate, async (req, res) => {
   }
 });
 
-router.get('/profileImage', authorizate, async (req, res) => {
-  const user = await User.findOne({ email: req.user.email }).exec();
+router.get('/profileImage/:userEmail', async (req, res) => {
+  const { userEmail } = req.params;
+
+  if (!userEmail) {
+    return res.status(400).json({ message: responseMessages.invalidParameters });
+  }
+
+  const user = await User.findOne({ email: userEmail }).exec();
 
   if (!user) {
     return res.status(400).json({ message: responseMessages.invalidCredentials });
