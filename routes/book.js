@@ -64,6 +64,7 @@ router.get('/getOne', async (req, res) => {
           condition: book.condition,
           imageName: book.imageName,
           seller: book.seller,
+          description: book.description,
         },
       });
     } else {
