@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
-const { responseMessages } = require('../strings.json');
+const { responseMessage } = require('../strings.json');
 const randomstring = require('randomstring');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
@@ -24,12 +24,12 @@ const authorizate = (req, res, next) => {
   const token = req.headers['authorization'];
 
   if (!token) {
-    return res.status(400).json({ message: responseMessages.invalidParameters });
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
   }
 
   jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
     if (err) {
-      return res.status(403).json({ message: responseMessages.invalidAuthorizationToken });
+      return res.status(403).json({ message: responseMessage.INVALID_AUTHORIZATION_TOKEN });
     }
 
     req.user = user;
@@ -42,15 +42,15 @@ router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
-    return res.status(400).json({ message: responseMessages.invalidParameters });
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
   }
 
   if (name.length < 2 || !isEmail(email) || password.length < 5) {
-    return res.status(400).json({ message: responseMessages.invalidParameters });
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
   }
 
   if (await User.findOne({ email }).exec()) {
-    return res.status(400).json({ message: responseMessages.alreadyExists });
+    return res.status(400).json({ message: responseMessage.ALREADY_EXISTS });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -90,13 +90,13 @@ router.post('/register', async (req, res) => {
   });
 
   if (emailSendingError) {
-    return res.status(500).json({ message: responseMessages.internalServerError });
+    return res.status(500).json({ message: responseMessage.INTERNAL_SERVER_ERROR });
   }
 
   const token = jwt.sign({ name, email }, process.env.TOKEN_SECRET);
 
   return res.status(201).json({
-    message: responseMessages.createdSuccessfully,
+    message: responseMessage.CREATED_SUCCESSFULLY,
     token,
     name,
     email,
@@ -107,23 +107,23 @@ router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ message: responseMessages.invalidParameters });
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
   }
 
   const user = await User.findOne({ email }).exec();
 
   if (!user) {
-    return res.status(400).json({ message: responseMessages.invalidCredentials });
+    return res.status(400).json({ message: responseMessage.INVALID_CREDENTIALS });
   }
 
   if (!(await bcrypt.compare(password, user.password))) {
-    return res.status(400).json({ message: responseMessages.invalidCredentials });
+    return res.status(400).json({ message: responseMessage.INVALID_CREDENTIALS });
   }
 
   const token = jwt.sign({ name: user.name, email }, process.env.TOKEN_SECRET);
 
   return res.status(200).json({
-    message: responseMessages.authenticatedSuccessfully,
+    message: responseMessage.AUTHENTICATED_SUCCESSFULLY,
     token,
     name: user.name,
     email,
@@ -135,7 +135,7 @@ router.patch('/update', authorizate, upload.single('profileImage'), async (req, 
     fs.rename(req.file.path, `${req.file.path}.png`, (err) => {
       if (err) {
         fs.unlinkSync(`images/${req.file.path}`);
-        return res.status(500).json({ message: responseMessages.internalServerError });
+        return res.status(500).json({ message: responseMessage.INTERNAL_SERVER_ERROR });
       }
     });
 
@@ -146,24 +146,24 @@ router.patch('/update', authorizate, upload.single('profileImage'), async (req, 
       req.file.mimetype != 'image/webp'
     ) {
       fs.unlinkSync(`images/${req.file.path}`);
-      return res.status(400).json({ message: responseMessages.unsupportedFileType });
+      return res.status(400).json({ message: responseMessage.UNSUPPORTED_FILE_TYPE });
     }
   }
 
   const { newName, newEmail, oldPassword, newPassword } = req.body;
 
   if (!newName || !newEmail || !oldPassword || !newPassword) {
-    return res.status(400).json({ message: responseMessages.invalidParameters });
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
   }
 
   const user = await User.findOne({ email: req.user.email }).exec();
 
   if (!user || !(await bcrypt.compare(oldPassword, user?.password))) {
-    return res.status(400).json({ message: responseMessages.invalidCredentials });
+    return res.status(400).json({ message: responseMessage.INVALID_CREDENTIALS });
   }
 
   if ((await User.findOne({ email: newEmail }).exec()) && req.user.email != newEmail) {
-    return res.status(400).json({ message: responseMessages.alreadyExists });
+    return res.status(400).json({ message: responseMessage.ALREADY_EXISTS });
   }
 
   if (req.file) {
@@ -183,7 +183,7 @@ router.patch('/update', authorizate, upload.single('profileImage'), async (req, 
   const token = jwt.sign({ name: user.name, email: user.email }, process.env.TOKEN_SECRET);
 
   return res.status(200).json({
-    message: responseMessages.updatedSuccessfully,
+    message: responseMessage.UPDATED_SUCCESSFULLY,
     token,
     newName,
     newEmail,
@@ -194,7 +194,7 @@ router.get('/allFavourites', authorizate, async (req, res) => {
   const user = await User.findOne({ email: req.user.email }).exec();
 
   if (!user) {
-    return res.status(400).json({ message: responseMessages.invalidCredentials });
+    return res.status(400).json({ message: responseMessage.INVALID_CREDENTIALS });
   }
 
   await user.populate('favourites', '_id title ISBN price imageName condition');
@@ -206,24 +206,24 @@ router.post('/addFavourite', authorizate, async (req, res) => {
   const { bookID } = req.body;
 
   if (!bookID || bookID.length != 24) {
-    return res.status(400).json({ message: responseMessages.invalidParameters });
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
   }
 
   const user = await User.findOne({ email: req.user.email }).exec();
 
   if (!user) {
-    return res.status(400).json({ message: responseMessages.invalidCredentials });
+    return res.status(400).json({ message: responseMessage.INVALID_CREDENTIALS });
   }
 
   if (user.favourites.find((id) => id == bookID)) {
-    return res.status(400).json({ message: responseMessages.alreadyExists });
+    return res.status(400).json({ message: responseMessage.ALREADY_EXISTS });
   }
 
   user.favourites.push(mongoose.Types.ObjectId(bookID));
   user.save();
 
   return res.status(200).json({
-    message: responseMessages.createdSuccessfully,
+    message: responseMessage.CREATED_SUCCESSFULLY,
   });
 });
 
@@ -231,24 +231,24 @@ router.delete('/removeFavourite/:bookID', authorizate, async (req, res) => {
   const { bookID } = req.params;
 
   if (!bookID || bookID.length != 24) {
-    return res.status(400).json({ message: responseMessages.invalidParameters });
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
   }
 
   const user = await User.findOne({ email: req.user.email }).exec();
 
   if (!user) {
-    return res.status(400).json({ message: responseMessages.invalidCredentials });
+    return res.status(400).json({ message: responseMessage.INVALID_CREDENTIALS });
   }
 
   if (!user.favourites.find((id) => id == bookID)) {
-    return res.status(400).json({ message: responseMessages.invalidParameters });
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
   }
 
   user.favourites = user.favourites.filter((favourite) => favourite.toString() !== bookID);
   user.save();
 
   return res.status(200).json({
-    message: responseMessages.removedSuccessfully,
+    message: responseMessage.REMOVED_SUCCESSFULLY,
   });
 });
 
@@ -256,19 +256,19 @@ router.get('/checkIfFavourite', authorizate, async (req, res) => {
   const { bookID } = req.query;
 
   if (!bookID || bookID.length != 24) {
-    return res.status(400).json({ message: responseMessages.invalidParameters });
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
   }
 
   const user = await User.findOne({ email: req.user.email }).exec();
 
   if (!user) {
-    return res.status(400).json({ message: responseMessages.invalidCredentials });
+    return res.status(400).json({ message: responseMessage.INVALID_CREDENTIALS });
   }
 
   if (user.favourites.find((id) => id == bookID)) {
-    return res.status(200).json({ message: responseMessages.bookIsFavourite });
+    return res.status(200).json({ message: responseMessage.BOOK_IS_FAVOURITE });
   } else {
-    return res.status(200).json({ message: responseMessages.bookIsNotFavourite });
+    return res.status(200).json({ message: responseMessage.BOOK_IS_NOT_FAVOURITE });
   }
 });
 
@@ -276,19 +276,19 @@ router.get('/profileImage/:userEmail', async (req, res) => {
   const { userEmail } = req.params;
 
   if (!userEmail) {
-    return res.status(400).json({ message: responseMessages.invalidParameters });
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
   }
 
   const user = await User.findOne({ email: userEmail }).exec();
 
   if (!user) {
-    return res.status(400).json({ message: responseMessages.invalidCredentials });
+    return res.status(400).json({ message: responseMessage.INVALID_CREDENTIALS });
   }
 
   if (user.profileImageName) {
     return res.download(`images/${user.profileImageName}`);
   } else {
-    return res.status(404).json({ message: responseMessages.notFound });
+    return res.status(404).json({ message: responseMessage.NOT_FOUND });
   }
 });
 
@@ -296,13 +296,13 @@ router.get('/books/:userEmail', async (req, res) => {
   const { userEmail } = req.params;
 
   if (!userEmail) {
-    return res.status(400).json({ message: responseMessages.invalidParameters });
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
   }
 
   const user = await User.findOne({ email: userEmail }).exec();
 
   if (!user) {
-    return res.status(400).json({ message: responseMessages.invalidCredentials });
+    return res.status(400).json({ message: responseMessage.INVALID_CREDENTIALS });
   }
 
   await user.populate('books', '_id title ISBN price imageName condition');

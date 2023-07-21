@@ -1,17 +1,17 @@
 {
-  "responseMessages": {
-    "invalidParameters": "Invalid parameters",
-    "alreadyExists": "Already exists",
-    "createdSuccessfully": "Created successfully",
-    "invalidCredentials": "Invalid credentials",
-    "authenticatedSuccessfully": "Authenticated successfully",
-    "internalServerError": "Internal server error",
-    "invalidAuthorizationToken": "Invalid authorization token",
-    "notFound": "Not Found",
-    "updatedSuccessfully": "Updated successfully",
-    "removedSuccessfully": "Removed successfully",
-    "bookIsFavourite": "Book is favourite",
-    "bookIsNotFavourite": "Book is not favourite",
-    "unsupportedFileType": "Unsupported file type"
+  "responseMessage": {
+    "INVALID_PARAMETERS": "Invalid parameters",
+    "ALREADY_EXISTS": "Already exists",
+    "CREATED_SUCCESSFULLY": "Created successfully",
+    "INVALID_CREDENTIALS": "Invalid credentials",
+    "AUTHENTICATED_SUCCESSFULLY": "Authenticated successfully",
+    "INTERNAL_SERVER_ERROR": "Internal server error",
+    "INVALID_AUTHORIZATION_TOKEN": "Invalid authorization token",
+    "NOT_FOUND": "Not Found",
+    "UPDATED_SUCCESSFULLY": "Updated successfully",
+    "REMOVED_SUCCESSFULLY": "Removed successfully",
+    "BOOK_IS_FAVOURITE": "Book is favourite",
+    "BOOK_IS_NOT_FAVOURITE": "Book is not favourite",
+    "UNSUPPORTED_FILE_TYPE": "Unsupported file type"
   }
 }
