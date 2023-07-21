@@ -292,4 +292,22 @@ router.get('/profileImage/:userEmail', async (req, res) => {
   }
 });
 
+router.get('/books/:userEmail', async (req, res) => {
+  const { userEmail } = req.params;
+
+  if (!userEmail) {
+    return res.status(400).json({ message: responseMessages.invalidParameters });
+  }
+
+  const user = await User.findOne({ email: userEmail }).exec();
+
+  if (!user) {
+    return res.status(400).json({ message: responseMessages.invalidCredentials });
+  }
+
+  await user.populate('books', '_id title ISBN price imageName condition');
+
+  return res.status(200).json({ books: user.books });
+});
+
 module.exports = router;
