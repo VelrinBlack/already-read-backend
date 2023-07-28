@@ -4,7 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const user = require('./routes/user');
-const book = require('./routes/book')
+const book = require('./routes/book');
 
 const app = express();
 const port = 5000;
@@ -19,7 +19,7 @@ const connectDB = async () => {
 connectDB().catch((err) => console.log(err));
 
 app.use('/user', user);
-app.use('/book', book)
+app.use('/book', book);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

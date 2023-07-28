@@ -60,6 +60,7 @@ router.get('/getOne', async (req, res) => {
       return res.status(200).json({
         book: {
           title: book.title,
+          ISBN: book.ISBN,
           price: book.price,
           condition: book.condition,
           imageName: book.imageName,
