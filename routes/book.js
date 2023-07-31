@@ -1,7 +1,12 @@
 const express = require('express');
 const Book = require('../models/Book');
 const { responseMessage } = require('../strings.json');
+const { authorizate } = require('../tools');
+const multer = require('multer');
+const fs = require('fs');
+const isbn3 = require('isbn3');
 
+const upload = multer({ dest: 'images/' });
 const router = express.Router();
 
 router.get('/getFiltered', async (req, res) => {
@@ -82,6 +87,77 @@ router.get('/image/:name', (req, res) => {
   }
 
   return res.download(`images/${req.params.name}`);
+});
+
+router.patch('/update', authorizate, upload.single('bookCover'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
+  }
+
+  if (
+    req.file.mimetype != 'image/png' &&
+    req.file.mimetype != 'image/jpg' &&
+    req.file.mimetype != 'image/jpeg' &&
+    req.file.mimetype != 'image/webp'
+  ) {
+    fs.unlinkSync(`images/${req.file.filename}`);
+    return res.status(400).json({ message: responseMessage.UNSUPPORTED_FILE_TYPE });
+  }
+
+  fs.rename(req.file.path, `${req.file.path}.png`, (err) => {
+    if (err) {
+      fs.unlinkSync(`images/${req.file.filename}`);
+      return res.status(500).json({ message: responseMessage.INTERNAL_SERVER_ERROR });
+    }
+  });
+
+  const { bookID, title, ISBN, price, condition, description } = req.body;
+
+  if (!bookID || !title || !ISBN || !price || !condition || !description || bookID.length != 24) {
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
+  }
+
+  const book = await Book.findOne({ _id: bookID });
+
+  if (!book) {
+    // need to create a new book
+  }
+
+  if (isNaN(Number(price))) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(400).json({ message: responseMessage.PRICE_IS_NAN });
+  }
+
+  if (!isbn3.parse(ISBN)?.isValid) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(400).json({ message: responseMessage.INVALID_ISBN });
+  }
+
+  if (condition != 'New' && condition != 'Used') {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(400).json({ message: responseMessage.INVALID_CONDITION });
+  }
+
+  const oldImageName = book.imageName;
+  book.imageName = `${req.file.filename}.png`;
+
+  if (book.title != title) book.title = title;
+  if (book.ISBN != ISBN) book.ISBN = ISBN;
+  if (book.price != price) book.price = price;
+  if (book.condition != condition) book.condition = condition;
+  if (book.description != description) book.description = description;
+
+  book.save((err) => {
+    if (err) {
+      fs.unlinkSync(`images/${req.file.filename}.png`);
+      return res.status(500).json({ message: responseMessage.INTERNAL_SERVER_ERROR });
+    } else {
+      fs.unlinkSync(`images/${oldImageName}`);
+      return res.status(200).json({
+        message: responseMessage.UPDATED_SUCCESSFULLY,
+      });
+    }
+  });
 });
 
 module.exports = router;

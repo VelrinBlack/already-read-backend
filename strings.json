@@ -12,6 +12,9 @@
     "REMOVED_SUCCESSFULLY": "Removed successfully",
     "BOOK_IS_FAVOURITE": "Book is favourite",
     "BOOK_IS_NOT_FAVOURITE": "Book is not favourite",
-    "UNSUPPORTED_FILE_TYPE": "Unsupported file type"
+    "UNSUPPORTED_FILE_TYPE": "Unsupported file type",
+    "PRICE_IS_NAN": "Price is NaN",
+    "INVALID_ISBN": "Invalid ISBN",
+    "INVALID_CONDITION": "Invalid condition"
   }
 }
