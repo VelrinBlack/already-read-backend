@@ -8,35 +8,10 @@ const jwt = require('jsonwebtoken');
 const { default: mongoose } = require('mongoose');
 const multer = require('multer');
 const fs = require('fs');
+const { authorizate, isEmail } = require('../tools');
 
 const upload = multer({ dest: 'images/' });
 const router = express.Router();
-
-const isEmail = (str) => {
-  return str
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-    );
-};
-
-const authorizate = (req, res, next) => {
-  const token = req.headers['authorization'];
-
-  if (!token) {
-    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
-  }
-
-  jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: responseMessage.INVALID_AUTHORIZATION_TOKEN });
-    }
-
-    req.user = user;
-
-    next();
-  });
-};
 
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
