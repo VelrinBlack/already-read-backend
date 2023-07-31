@@ -107,37 +107,40 @@ router.post('/login', async (req, res) => {
 
 router.patch('/update', authorizate, upload.single('profileImage'), async (req, res) => {
   if (req.file) {
-    fs.rename(req.file.path, `${req.file.path}.png`, (err) => {
-      if (err) {
-        fs.unlinkSync(`images/${req.file.path}`);
-        return res.status(500).json({ message: responseMessage.INTERNAL_SERVER_ERROR });
-      }
-    });
-
     if (
       req.file.mimetype != 'image/png' &&
       req.file.mimetype != 'image/jpg' &&
       req.file.mimetype != 'image/jpeg' &&
       req.file.mimetype != 'image/webp'
     ) {
-      fs.unlinkSync(`images/${req.file.path}`);
+      fs.unlinkSync(`images/${req.file.filename}`);
       return res.status(400).json({ message: responseMessage.UNSUPPORTED_FILE_TYPE });
     }
+
+    fs.rename(req.file.path, `${req.file.path}.png`, (err) => {
+      if (err) {
+        fs.unlinkSync(`images/${req.file.filename}`);
+        return res.status(500).json({ message: responseMessage.INTERNAL_SERVER_ERROR });
+      }
+    });
   }
 
   const { newName, newEmail, oldPassword, newPassword } = req.body;
 
   if (!newName || !newEmail || !oldPassword || !newPassword) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
     return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
   }
 
   const user = await User.findOne({ email: req.user.email }).exec();
 
   if (!user || !(await bcrypt.compare(oldPassword, user?.password))) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
     return res.status(400).json({ message: responseMessage.INVALID_CREDENTIALS });
   }
 
   if ((await User.findOne({ email: newEmail }).exec()) && req.user.email != newEmail) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
     return res.status(400).json({ message: responseMessage.ALREADY_EXISTS });
   }
 
