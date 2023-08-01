@@ -120,7 +120,8 @@ router.patch('/update', authorizate, upload.single('bookCover'), async (req, res
   const book = await Book.findOne({ _id: bookID });
 
   if (!book) {
-    // need to create a new book
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(404).json({ message: responseMessage.NOT_FOUND });
   }
 
   if (isNaN(Number(price))) {
