@@ -15,6 +15,7 @@
     "UNSUPPORTED_FILE_TYPE": "Unsupported file type",
     "PRICE_IS_NAN": "Price is NaN",
     "INVALID_ISBN": "Invalid ISBN",
-    "INVALID_CONDITION": "Invalid condition"
+    "INVALID_CONDITION": "Invalid condition",
+    "INVALID_DESCRIPTION_LENGTH": "Invalid description length"
   }
 }

@@ -124,19 +124,24 @@ router.patch('/update', authorizate, upload.single('bookCover'), async (req, res
     return res.status(404).json({ message: responseMessage.NOT_FOUND });
   }
 
-  if (isNaN(Number(price))) {
-    fs.unlinkSync(`images/${req.file.filename}.png`);
-    return res.status(400).json({ message: responseMessage.PRICE_IS_NAN });
-  }
-
   if (!isbn3.parse(ISBN)?.isValid) {
     fs.unlinkSync(`images/${req.file.filename}.png`);
     return res.status(400).json({ message: responseMessage.INVALID_ISBN });
   }
 
+  if (isNaN(Number(price))) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(400).json({ message: responseMessage.PRICE_IS_NAN });
+  }
+
   if (condition != 'New' && condition != 'Used') {
     fs.unlinkSync(`images/${req.file.filename}.png`);
     return res.status(400).json({ message: responseMessage.INVALID_CONDITION });
+  }
+
+  if (description.length < 200 || description.length > 1500) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(400).json({ message: responseMessage.INVALID_DESCRIPTION_LENGTH });
   }
 
   const oldImageName = book.imageName;
