@@ -1,5 +1,6 @@
 const express = require('express');
 const Book = require('../models/Book');
+const User = require('../models/User');
 const { responseMessage } = require('../strings.json');
 const { authorizate } = require('../tools');
 const multer = require('multer');
@@ -161,6 +162,91 @@ router.patch('/update', authorizate, upload.single('bookCover'), async (req, res
       fs.unlinkSync(`images/${oldImageName}`);
       return res.status(200).json({
         message: responseMessage.UPDATED_SUCCESSFULLY,
+      });
+    }
+  });
+});
+
+router.post('/createOne', authorizate, upload.single('bookCover'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
+  }
+
+  if (
+    req.file.mimetype != 'image/png' &&
+    req.file.mimetype != 'image/jpg' &&
+    req.file.mimetype != 'image/jpeg' &&
+    req.file.mimetype != 'image/webp'
+  ) {
+    fs.unlinkSync(`images/${req.file.filename}`);
+    return res.status(400).json({ message: responseMessage.UNSUPPORTED_FILE_TYPE });
+  }
+
+  fs.rename(req.file.path, `${req.file.path}.png`, (err) => {
+    if (err) {
+      fs.unlinkSync(`images/${req.file.filename}`);
+      return res.status(500).json({ message: responseMessage.INTERNAL_SERVER_ERROR });
+    }
+  });
+
+  const { bookID, title, ISBN, price, condition, description } = req.body;
+
+  if (!bookID || !title || !ISBN || !price || !condition || !description || bookID.length != 24) {
+    return res.status(400).json({ message: responseMessage.INVALID_PARAMETERS });
+  }
+
+  const book = await Book.findOne({ _id: bookID });
+
+  if (book) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(400).json({ message: responseMessage.ALREADY_EXISTS });
+  }
+
+  if (!isbn3.parse(ISBN)?.isValid) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(400).json({ message: responseMessage.INVALID_ISBN });
+  }
+
+  if (isNaN(Number(price))) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(400).json({ message: responseMessage.PRICE_IS_NAN });
+  }
+
+  if (condition != 'New' && condition != 'Used') {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(400).json({ message: responseMessage.INVALID_CONDITION });
+  }
+
+  if (description.length < 200 || description.length > 1500) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(400).json({ message: responseMessage.INVALID_DESCRIPTION_LENGTH });
+  }
+
+  const user = await User.findOne({ email: req.user.email });
+
+  if (!user) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(400).json({ message: responseMessage.INVALID_CREDENTIALS });
+  }
+
+  const newBook = new Book({
+    _id: bookID,
+    title,
+    ISBN,
+    price,
+    condition,
+    description,
+    imageName: `${req.file.filename}.png`,
+    seller: user._id,
+  });
+
+  newBook.save((err) => {
+    if (err) {
+      fs.unlinkSync(`images/${req.file.filename}.png`);
+      return res.status(500).json({ message: responseMessage.INTERNAL_SERVER_ERROR });
+    } else {
+      return res.status(201).json({
+        message: responseMessage.CREATED_SUCCESSFULLY,
       });
     }
   });
