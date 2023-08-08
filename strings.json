@@ -16,6 +16,7 @@
     "PRICE_IS_NAN": "Price is NaN",
     "INVALID_ISBN": "Invalid ISBN",
     "INVALID_CONDITION": "Invalid condition",
-    "INVALID_DESCRIPTION_LENGTH": "Invalid description length"
+    "INVALID_DESCRIPTION_LENGTH": "Invalid description length",
+    "INVALID_TITLE_LENGTH": "Invalid title length"
   }
 }

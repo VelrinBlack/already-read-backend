@@ -125,6 +125,11 @@ router.patch('/update', authorizate, upload.single('bookCover'), async (req, res
     return res.status(404).json({ message: responseMessage.NOT_FOUND });
   }
 
+  if (title.length < 2 || title.length > 50) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(400).json({ message: responseMessage.INVALID_TITLE_LENGTH });
+  }
+
   if (!isbn3.parse(ISBN)?.isValid) {
     fs.unlinkSync(`images/${req.file.filename}.png`);
     return res.status(400).json({ message: responseMessage.INVALID_ISBN });
@@ -200,6 +205,11 @@ router.post('/createOne', authorizate, upload.single('bookCover'), async (req, r
   if (book) {
     fs.unlinkSync(`images/${req.file.filename}.png`);
     return res.status(400).json({ message: responseMessage.ALREADY_EXISTS });
+  }
+
+  if (title.length < 2 || title.length > 50) {
+    fs.unlinkSync(`images/${req.file.filename}.png`);
+    return res.status(400).json({ message: responseMessage.INVALID_TITLE_LENGTH });
   }
 
   if (!isbn3.parse(ISBN)?.isValid) {
