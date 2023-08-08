@@ -145,7 +145,7 @@ router.patch('/update', authorizate, upload.single('bookCover'), async (req, res
     return res.status(400).json({ message: responseMessage.INVALID_CONDITION });
   }
 
-  if (description.length < 200 || description.length > 1500) {
+  if (description.length < 200 || description.length > 900) {
     fs.unlinkSync(`images/${req.file.filename}.png`);
     return res.status(400).json({ message: responseMessage.INVALID_DESCRIPTION_LENGTH });
   }
@@ -227,7 +227,7 @@ router.post('/createOne', authorizate, upload.single('bookCover'), async (req, r
     return res.status(400).json({ message: responseMessage.INVALID_CONDITION });
   }
 
-  if (description.length < 200 || description.length > 1500) {
+  if (description.length < 200 || description.length > 900) {
     fs.unlinkSync(`images/${req.file.filename}.png`);
     return res.status(400).json({ message: responseMessage.INVALID_DESCRIPTION_LENGTH });
   }
