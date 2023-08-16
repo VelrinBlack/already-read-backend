@@ -7,7 +7,7 @@ const user = require('./routes/user');
 const book = require('./routes/book');
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cors());
