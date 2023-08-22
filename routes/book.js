@@ -239,6 +239,14 @@ router.post('/createOne', authorizate, upload.single('bookCover'), async (req, r
     return res.status(400).json({ message: responseMessage.INVALID_CREDENTIALS });
   }
 
+  user.books.push(bookID);
+  user.save((err) => {
+    if (err) {
+      fs.unlinkSync(`images/${req.file.filename}.png`);
+      return res.status(500).json({ message: responseMessage.INTERNAL_SERVER_ERROR });
+    }
+  });
+
   const newBook = new Book({
     _id: bookID,
     title,
